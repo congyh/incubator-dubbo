@@ -40,6 +40,8 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * Note: Dubbo中的URL不是java.net.URL, 而是自定义的一个封装
+ *
  * URL - Uniform Resource Locator (Immutable, ThreadSafe)
  * <p>
  * url example:

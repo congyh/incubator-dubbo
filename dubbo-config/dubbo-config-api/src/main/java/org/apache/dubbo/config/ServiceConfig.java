@@ -330,11 +330,16 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         checkMock(interfaceClass);
     }
 
+    // Note: 导出操作有三个操作
+    // 1. 配置检查, url组装;
+    // 2. 导出服务;
     public synchronized void export() {
         checkAndUpdateSubConfigs();
 
         if (provider != null) {
             if (export == null) {
+                // Note: 那么这个export变量到底是怎么使用的呢?
+                // <dubbo:provider export="false" />禁止导出.
                 export = provider.getExport();
             }
             if (delay == null) {
@@ -345,9 +350,9 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
             return;
         }
 
-        if (delay != null && delay > 0) {
+        if (delay != null && delay > 0) { // Note: 延时导出
             delayExportExecutor.schedule(this::doExport, delay, TimeUnit.MILLISECONDS);
-        } else {
+        } else { // Note: 正常导出
             doExport();
         }
     }
@@ -403,12 +408,16 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private void doExportUrls() {
+        // Note: 加载注册中心URL
         List<URL> registryURLs = loadRegistries(true);
+        // Note: 对于每种协议, 都定义导出服务
         for (ProtocolConfig protocolConfig : protocols) {
             doExportUrlsFor1Protocol(protocolConfig, registryURLs);
         }
     }
 
+    // Note: URL组装(非常重要!)
+    // 因为Dubbo配置载体是URL, URL使得Dubbo的各种配置在各个模块之间传递. URL之于Dubbo, 如水之于鱼.
     private void doExportUrlsFor1Protocol(ProtocolConfig protocolConfig, List<URL> registryURLs) {
         String name = protocolConfig.getName();
         if (StringUtils.isEmpty(name)) {
@@ -416,6 +425,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
         }
 
         Map<String, String> map = new HashMap<String, String>();
+        // Note: 标识为provider
         map.put(Constants.SIDE_KEY, Constants.PROVIDER_SIDE);
         appendRuntimeParameters(map);
         appendParameters(map, application);
@@ -515,6 +525,7 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
 
         String host = this.findConfigedHosts(protocolConfig, registryURLs, map);
         Integer port = this.findConfigedPorts(protocolConfig, name, map);
+        // Note: 组装url
         URL url = new URL(name, host, port, (StringUtils.isEmpty(contextPath) ? "" : contextPath + "/") + path, map);
 
         if (ExtensionLoader.getExtensionLoader(ConfiguratorFactory.class)
