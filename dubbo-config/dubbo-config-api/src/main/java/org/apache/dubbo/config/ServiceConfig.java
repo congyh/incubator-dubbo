@@ -418,9 +418,10 @@ public class ServiceConfig<T> extends AbstractServiceConfig {
 
     // Note: URL组装(非常重要!)
     // 因为Dubbo配置载体是URL, URL使得Dubbo的各种配置在各个模块之间传递. URL之于Dubbo, 如水之于鱼.
+    // 注意: 这里的URL并非java.net.URL, 而是dubbo自定义的url.
     private void doExportUrlsFor1Protocol(ProtocolConfig protocolConfig, List<URL> registryURLs) {
         String name = protocolConfig.getName();
-        if (StringUtils.isEmpty(name)) {
+        if (StringUtils.isEmpty(name)) { // Note: 默认protocol为dubbo
             name = Constants.DUBBO;
         }
 
